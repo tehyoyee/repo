@@ -1,0 +1,956 @@
+# Click the Variables button, above, to create your own variables.
+GET ${exampleVariable1} // _search
+{
+  "query": {
+    "${exampleVariable2}": {} // match_all
+  }
+}
+
+GET _cat
+
+GET _cat/indices?v
+
+GET _cat/indices?v
+
+PUT index1
+
+GET index1
+
+DELETE index1
+
+PUT index2/_doc/1
+{
+  "name": "mike",
+  "age": 25,
+  "gender": "male"
+}
+
+GET index2
+
+GET index2/_doc/1
+
+GET index2/_search
+
+PUT index2/_doc/1
+{
+  "name": "park",
+  "age": 45,
+  "gender": "male"
+}
+
+POST index2/_update/1
+{
+  "doc": {
+    "name": "lee"
+  }
+}
+
+DELETE index2/_doc/2
+
+
+
+POST _bulk
+{ "index": { "_index": "test", "_id": "1" } }
+{ "field": "value1" }
+{ "create": { "_index": "test", "_id": "3" } }
+{ "field1": "value3" }
+{ "update": {"_id": "1", "_index": "test" } }
+{ "doc": { "field2": "value2"} }
+{ "delete": {"_index": "test", "_id": "2" } }
+
+
+GET test/_search
+
+POST _bulk
+{ "index": { "_index": "test", "_id": "4" } }
+{ "name": "park", "age": 30, "gender": "female" }
+{ "index": { "_index": "test", "_id": "5" } }
+{ "name": "jung", "age": 50, "gender": "male" }
+
+
+GET test/_mapping
+DELETE test/_mapping/properties/field
+
+DELETE test/_doc/3
+GET test2/_mapping
+PUT test1
+PUT test2
+{
+  "mappings": {
+    "properties": {
+      "age": {"type": "short"}
+    }
+  }
+}
+
+
+PUT text_index/_doc/1
+{
+  "contents": "beautiful day"
+}
+
+GET text_index/_search
+{
+  "query": {
+    "match": {
+      "contents": "day"
+    }
+  }
+}
+PUT multifield_index
+{
+  "mappings": {
+    "properties": {
+      "message": { "type": "text" },
+      "contents": {
+        "type": "text",
+        "fields": {
+          "keyword": { "type": "keyword" }
+        }
+      }
+    }
+  }
+}
+PUT multifield_index/_doc/1
+{
+  "message": "1 document",
+  "contents": "beatiful day"
+}
+PUT multifield_index/_doc/2
+{
+  "message": "2 document",
+  "contents": "beatiful day"
+}
+PUT multifield_index/_doc/3
+{
+  "message": "3 document",
+  "contents": "wonderful day"
+}
+
+// 인덱스 전문 쿼리
+GET multifield_index/_search
+{
+  "query": {
+    "match": {
+      "contents": "day"
+    }
+  }
+}
+// 인덱스 용어 쿼리
+GET multifield_index/_search
+{
+  "query": {
+    "term": {
+      "contents.keyword": "day"
+    }
+  }
+}
+
+// 인덱스 집계 쿼리
+GET multifield_index/_search
+{
+  "size": 0,
+  "aggs": {
+    "contents": {
+      "terms": {
+        "field": "contents.keyword"
+      }
+    }
+  }
+}
+
+GET multifield_index/_search
+GET multifield_index/_mapping
+
+
+// 인덱스 템플릿.
+GET _index_template/lim-*
+GET _index_template/test*
+
+PUT _index_template/test_template
+{
+  "index_patterns": ["test_*"],
+  "priority": 1,
+  "template": {
+    "settings": {
+      "number_of_shards": 3,
+      "number_of_replicas": 1
+    },
+    "mappings": {
+      "properties": {
+        "name": { "type": "text" },
+        "age": { "type": "short" },
+        "gender": { "type": "keyword" }
+      }
+    }
+  }
+}
+DELETE _index_template/test_template
+
+
+PUT test_index1/_doc/1
+{
+  "name": "kim",
+  "age": 10,
+  "gender": "male"
+}
+
+GET test_index1/_mapping
+
+// 다이나믹 템플릿
+PUT dynamic_index1
+{
+  "mappings": {
+    "dynamic_templates": [
+      {
+        "my_string_fields": {
+          "match_mapping_type": "string",
+          "mapping": {"type": "keyword"}
+        }
+      }
+    ]
+  }
+}
+PUT dynamic_index1/_doc/1
+{
+  "name": "mr.kim",
+  "age": 40
+}
+GET dynamic_index1/_mapping
+
+
+// 다이나믹 템플릿2
+PUT dynamic_index2
+{
+  "mappings": {
+    "dynamic_templates": [
+      {
+        "my_long_fields": {
+          "match": "long_*",
+          "unmatch": "*_text",
+          "mapping": { "type": "long" }
+        }
+      }
+    ]
+  }
+}
+PUT dynamic_index2/_doc/1
+{
+  "long_num": "5",
+  "long_text": "170"
+}
+GET dynamic_index2
+
+
+
+
+//분석기
+POST _analyze
+{
+	"analyzer": "stop",
+	"text": "The 10 most loving dog breeds."
+}
+
+
+PUT customer_analyzer
+{
+  "settings": {
+    "analysis": {
+      "filter": {
+        "my_stopwords": {
+          "type": "stop",
+          "stopwords": ["lions"]
+        }
+      },
+      "analyzer": {
+        "my_analyzer": {
+          "type": "custom",
+          "char_filter": [],
+          "tokenizer": "standard",
+          "filter": ["lowercase", "my_stopwords"]
+        }
+      }
+    }
+  }
+}
+GET customer_analyzer/_analyze
+{
+  "analyzer": "my_analyzer",
+  "text": "Cats Lions Dogs"
+}
+
+
+// query context
+GET kibana_sample_data_ecommerce/_search
+{
+  "query": {
+    "match": {
+      "category": "clothing"
+    }
+  }
+}
+
+// filter context
+GET kibana_sample_data_ecommerce/_search
+{
+  "query": {
+    "bool": {
+      "filter": {
+        "term": {
+          "day_of_week": "Friday"
+        }
+      }
+    }
+  }
+}
+
+// query string
+GET kibana_sample_data_ecommerce/_search?q=customer_full_name:Mary
+
+// query dsl
+GET kibana_sample_data_ecommerce/_search
+{
+  "query": {
+    "match": {
+      "customer_full_name": "Mary"
+    }
+  }
+}
+
+
+// 유사도 스코어 explain 옵션 사용
+GET kibana_sample_data_ecommerce/_search
+{
+  "query": {
+    "match": {
+      "products.product_name": "Pants"
+    }
+  },
+  "explain": true
+}
+
+// 4.4.1 전문쿼리
+PUT qindex/_doc/1
+{
+  "contents": "I Love Elastic Stack."
+}
+GET qindex/_search
+{
+  "query": {
+    "match": {
+      "contents": "elastic world"
+    }
+  }
+}
+
+// 4.4.1 용어 수준 쿼리
+PUT qindex/_doc/1
+{
+  "category": "Tech"
+}
+GET qindex/_search
+{
+  "query": {
+    "term": {
+        "category": "tech"
+    }
+  }
+}
+
+
+
+
+
+
+//  4.4.2 매치 쿼리
+//    필드 찾기
+GET kibana_sample_data_ecommerce/_mapping
+
+//    하나의 용어를검색하는 매치 쿼리
+GET kibana_sample_data_ecommerce/_search
+{
+  "_source": ["customer_full_name"],
+  "query": {
+    "match": {
+      "customer_full_name": "mary"
+    }
+  }
+}
+
+//    복수 개의 용어를 검색하는 매치 쿼리 ( OR 연산 )
+GET kibana_sample_data_ecommerce/_search
+{
+  "_source": ["customer_full_name"],
+  "query": {
+    "match": {
+      "customer_full_name": "mary bailey"
+    }
+  }
+}
+
+//    복수 개의 용어를 검색하는 매치 쿼리 ( AND 연산 )
+GET kibana_sample_data_ecommerce/_search
+{
+  "_source": ["customer_full_name"],
+  "query": {
+    "match": {
+      "customer_full_name": {
+        "query": "mary bailey",
+        "operator": "and"
+      }
+    }
+  }
+}
+
+//  4.4.3 매치 프레이즈 쿼리
+GET kibana_sample_data_ecommerce/_search
+{
+  "_source": ["customer_full_name"],
+  "query": {
+    "match_phrase": {
+        "customer_full_name": "mary bailey"
+    }
+  }
+}
+
+//  4.4.4 용어 쿼리
+//    타입이 텍스트랑 키워드라서 검색되지 않음.
+GET kibana_sample_data_ecommerce/_search
+{
+  "_source": ["customer_full_name"],
+  "query": {
+    "term": {
+      "customer_full_name": "Mary Bailey"
+    }
+  }
+}
+
+//    키워드 타입필드에 대한 용어쿼리
+GET kibana_sample_data_ecommerce/_search
+{
+  "_source": ["customer_full_name"],
+  "query": {
+    "term": {
+        "customer_full_name.keyword": "Mary Bailey"
+    }
+  }
+}
+
+
+//  4.4.5 용어들 쿼리
+GET kibana_sample_data_ecommerce/_search
+{
+  "_source": ["day_of_week"],
+  "query": {
+    "terms": {
+        "day_of_week": ["Monday", "Sunday"]
+    }
+  }
+}
+
+// 4.4.6 멀티 매치 쿼리
+GET kibana_sample_data_ecommerce/_search
+{
+  "_source": ["customer_first_name", "customer_last_name", "customer_full_name"],
+  "query": {
+    "multi_match": {
+      "query": "mary",
+      "fields": ["customer_*_name"]
+    }
+  }
+}
+
+// 4.4.6.1 필드에 가중치 두기
+GET kibana_sample_data_ecommerce/_search
+{
+  "_source": ["customer_first_name", "customer_last_name", "customer_full_name"],
+  "query": {
+    "multi_match": {
+      "query": "mary",
+      "fields": [
+        "customer_first_name",
+        "customer_full_name^2",
+        "customer_last_name"
+      ]
+    }
+  }
+}
+
+// 범위 쿼리
+GET kibana_sample_data_flights/_search
+{
+  "query": {
+    "range": {
+      "timestamp": {
+        "gte": "now-1M"
+      }
+    }
+  }
+}
+
+// 4.4.7 범위 데이터 타입
+PUT range_test_index
+{
+  "mappings": {
+    "properties": {
+      "test_date": {
+        "type": "date_range"
+      }
+    }
+  }
+}
+
+// 4.4.7 범위 데이터 타입
+PUT range_test_index/_doc/1
+{
+  "test_date": {
+    "gte": "2021-01-21",
+    "lt": "2021-01-25"
+  }
+}
+
+// 4.4.7 범위 데이터 타입
+GET range_test_index/_search
+{
+  "query": {
+    "range": {
+      "test_date": {
+        "gte": "2021-01-21",
+        "lte": "2021-01-28",
+        "relation": "within"
+      }
+    }
+  }
+}
+
+// 논리 쿼리
+GET <index>/_search
+{
+  "query": {
+    "bool": {
+      "must": {
+        { query }, ...
+      },
+      "must_not": {
+        { query }, ...
+      },
+      "should": {
+        { query }, ...
+      },
+      "filter": {
+        { query }, ...
+      }
+    }
+  }
+}
+
+// 4.4.8.1 must 타입
+GET kibana_sample_data_ecommerce/_search
+{
+  "query": {
+    "bool": {
+      "must": {
+        "match": { "customer_first_name": "mary" }
+      }
+    }
+  }
+}
+// 4.4.8.1 must 타입
+GET kibana_sample_data_ecommerce/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "term": { "day_of_week": "Sunday" } },
+        { "match": { "customer_full_name": "mary" } }
+      ]
+    }
+  }
+}
+// 4.4.8.2 must_not 타입
+GET kibana_sample_data_ecommerce/_search
+{
+  "query": {
+    "bool": {
+      "must_not": {
+        "match": { "customer_full_name": "mary" }
+      }
+    }
+  }
+}
+// 4.4.8.2 must_not 타입
+GET kibana_sample_data_ecommerce/_search
+{
+  "_source": ["customer_full_name"], 
+  "query": {
+    "bool": {
+      "must": {
+        "match": { "customer_full_name": "mary" }
+      },
+      "must_not": [
+        {
+          "term": {
+            "customer_last_name": {
+              "value": "bailey"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+// 4.4.8.3 should 타입
+GET kibana_sample_data_ecommerce/_search
+{
+  "query": {
+    "bool": {
+      "should": {
+        "match": { "customer_full_name": "mary" }
+      }
+    }
+  }
+}
+// 4.4.8.3 should 타입
+GET kibana_sample_data_ecommerce/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match": { "customer_full_name": "mary" } },
+        { "term": { "day_of_week": "Sunday" } }
+      ]
+    }
+  }
+}
+// 4.4.8.3 must + should 타입
+{
+  "query": {
+    "bool": {
+      "must": {
+        "match": { "customer_full_name": "mary" }
+      },
+      "should": {
+        "term": { "day_of_week": "Monday" } 
+      }
+    }
+  }
+}
+
+
+// 4.4.8.4 filter 타입
+GET kibana_sample_data_ecommerce/_search
+{
+  "_source": ["products.base_price"],
+  "query": {
+    "bool": {
+      "filter": {
+        "range": {
+          "products.base_price": {
+            "gte": 30,
+            "lte": 60
+          }
+        }
+      }
+    }
+  }
+}
+
+GET kibana_sample_data_ecommerce/_search
+{
+  "query": {
+    "wildcard": {
+        "customer_full_name.keyword": "M?r*"
+    }
+  }
+}
+
+GET kibana_sample_data_ecommerce/_mapping
+
+// 5.2.1 평균값/중간값 구하기
+GET kibana_sample_data_ecommerce/_search
+{
+  "size": 0,
+  "aggs": {
+    "stats_aggs": {
+      "avg": {
+        "field": "products.base_price"
+      }
+    }
+  }
+}
+
+// 5.2.1 백분위를 구하는 집계
+GET kibana_sample_data_ecommerce/_search
+{
+  "size": 0,
+  "aggs": {
+    "stats_aggs": {
+      "percentiles": {
+        "field": "products.base_price",
+        "percents": [
+          1,
+          5,
+          25,
+          50,
+          75,
+          95,
+          99
+        ]
+      }
+    }
+  }
+}
+
+// 5.2.2 필드의 유니크한 결과값
+GET kibana_sample_data_ecommerce/_search
+{
+  "size": 0,
+  "aggs": {
+    "cardi_aggs": {
+      "cardinality": {
+        "field": "day_of_week",
+        "precision_threshold": 100
+      }
+    }
+  }
+}
+
+// 5.2.2 용어 집계 요청 (유니크한 값들 + 갯수도 확인)
+GET kibana_sample_data_ecommerce/_search
+{
+  "size": 0,
+  "aggs": {
+    "cardi_aggs": {
+      "terms": {
+        "field": "day_of_week"
+      }
+    }
+  }
+}
+
+//5.2.3 검색결과 내에서의 집계
+GET kibana_sample_data_ecommerce/_search
+{
+  "size": 0,
+  "query": {
+    "term": {
+      "day_of_week": "Monday"
+    }
+  },
+  "aggs": {
+    "query_aggs": {
+      "sum": {
+        "field": "products.base_price"
+      }
+    }
+  }
+}
+
+// 5.3.1 히스토그램 집계
+GET kibana_sample_data_ecommerce/_search
+{
+  "size": 0,
+  "aggs": {
+    "histogram_aggs": {
+      "histogram": {
+        "field": "products.base_price",
+        "interval": 50
+      }
+    }
+  }
+}
+
+// 5.3.2 범위 집계
+GET kibana_sample_data_ecommerce/_search
+{
+  "size": 0,
+  "aggs": {
+    "range_aggs": {
+      "range": {
+        "field": "products.base_price",
+        "ranges": [
+          {
+            "from": 50,
+            "to": 100
+          },
+          {
+            "from": 100,
+            "to": 150
+          }
+        ]
+      }
+    }
+  }
+}
+
+// 5.3.3 용어 집계
+// 필드의 유니크한 값을 기준으로 버킷을 나눌 때 사용
+// 보여줄 사이즈 지정가능 default: 10
+GET kibana_sample_data_ecommerce/_search
+{
+  "size": 0,
+  "aggs": {
+    "term_aggs": {
+      "terms": {
+        "field": "day_of_week", 
+        "size": 6
+      }
+    }
+  }
+}
+
+/**
+/*  5.4 집계의 조합
+/*
+**/
+
+// 5.4.1 버킷 집계와 메트릭 집계
+GET kibana_sample_data_ecommerce/_search
+{
+  "size": 0,
+  "aggs": {
+    "term_aggs": {
+      "terms": {
+        "field": "day_of_week",
+        "size": 5
+      },
+      "aggs": {
+        "avg_aggs": {
+          "avg": {
+            "field": "products.base_price"
+          }
+        },
+        "sum_aggs": {
+          "sum": {
+            "field": "products.base_price"
+          }
+        }
+      }
+    }
+  }
+}
+
+// 5.4.2 서브 버킷 집계
+GET kibana_sample_data_ecommerce/_search
+{
+  "size": 0,
+  "aggs": {
+    "histogram_aggs": {
+      "histogram": {
+        "field": "products.base_price",
+        "interval": 100
+      },
+      "aggs": {
+        "term_aggs": {
+          "terms": {
+            "field": "day_of_week",
+            "size": 2
+          }
+        }
+      }
+    }
+  }
+}
+
+// 5.5 파이프라인 집계
+
+// 5.5.1 부모 집계
+GET kibana_sample_data_ecommerce/_search
+{
+  "size": 0,
+  "aggs": {
+    "histogram_aggs": {
+      "histogram": {
+        "field": "products.base_price",
+        "interval": 100
+      },
+      "aggs": {
+        "sum_aggs": {
+          "sum": {
+            "field": "taxful_total_price"
+          }
+        },
+        "cum_sum": {
+          "cumulative_sum": {
+            "buckets_path": "sum_aggs"
+          }
+        }
+      }
+    }
+  }
+}
+
+// 5.5.2 형제 집계
+GET kibana_sample_data_ecommerce/_search
+{
+  "size": 0,
+  "aggs": {
+    "term_aggs": {
+      "terms": {
+        "field": "day_of_week",
+        "size": 2
+      },
+      "aggs": {
+        "sum_aggs": {
+          "sum": {
+            "field": "products.base_price"
+          }
+        }
+      }
+    },
+    "sum_total_price": {
+      "sum_bucket": {
+        "buckets_path": "term_aggs>sum_aggs"
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
