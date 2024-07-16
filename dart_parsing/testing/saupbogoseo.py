@@ -7,7 +7,7 @@ file_path = './CORPCODE.xml'
 
 url = "https://opendart.fss.or.kr/api/document.xml"
 # url = "https://opendart.fss.or.kr/api/fnlttXbrl.xml"
-api_key = "ae5c9c5b6c926588c55cd34dea4f48f133ccc868"
+api_key = ""
 rcept_no = "20240320001487"
 
 params = {

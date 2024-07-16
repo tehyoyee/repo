@@ -59,7 +59,7 @@ for key, value in corp_list.items():
     # print(key)
 
     url = "https://opendart.fss.or.kr/api/list.xml"
-    api_key = "ae5c9c5b6c926588c55cd34dea4f48f133ccc868"
+    api_key = ""
 
     params = {
         'crtfc_key': api_key,
@@ -92,7 +92,7 @@ for key, value in corp_list.items():
 for report_no, corp_name in report_no_corp_name_map.items():
 
     url = "https://opendart.fss.or.kr/api/document.xml"
-    api_key = "ae5c9c5b6c926588c55cd34dea4f48f133ccc868"
+    api_key = ""
     rcept_no = report_no
 
     params = {

@@ -64,7 +64,7 @@ for corp_no in corp_list[700:710]:
 
 
     url = "https://opendart.fss.or.kr/api/list.xml"
-    api_key = "ae5c9c5b6c926588c55cd34dea4f48f133ccc868"
+    api_key = ""
 
     params = {
         'crtfc_key': api_key,
@@ -98,7 +98,7 @@ cnt = 0
 for report_no, corp_name in report_no_corp_name_map.items():
 
     url = "https://opendart.fss.or.kr/api/document.xml"
-    api_key = "ae5c9c5b6c926588c55cd34dea4f48f133ccc868"
+    api_key = ""
     rcept_no = report_no
 
     params = {
